@@ -450,3 +450,391 @@ Both are often interchangeable for objects, but **interfaces** are better when d
 
 ```
 So you can have at least one string, and then any number of additional strings.
+
+# 🔒 Access Modifiers in TypeScript
+
+## 📘 What Are Access Modifiers?
+
+Access modifiers in TypeScript are keywords that **control the visibility** (or accessibility) of class members — properties and methods. They determine where and how a member can be accessed.
+
+There are **three main access modifiers**:
+
+* `public`
+* `private`
+* `protected`
+
+By default, all class members are **public** if no modifier is specified.
+
+---
+
+## 🧩 1. Public
+
+### 🔹 Definition:
+
+Members declared as `public` are **accessible from anywhere** — inside the class, in subclasses, and outside the class.
+
+### 🔹 Example:
+
+```ts
+class Person {
+  public name: string;
+
+  constructor(name: string) {
+    this.name = name;
+  }
+
+  public greet() {
+    console.log(`Hello, my name is ${this.name}`);
+  }
+}
+
+const person = new Person('Aya');
+console.log(person.name); // ✅ Accessible
+person.greet(); // ✅ Accessible
+```
+
+### ✅ Use Case:
+
+Use `public` when you want the property or method to be **freely accessible** across your program.
+
+---
+
+## 🧩 2. Private
+
+### 🔹 Definition:
+
+Members declared as `private` are **only accessible within the same class**. They **cannot** be accessed from outside or from subclasses.
+
+### 🔹 Example:
+
+```ts
+class Account {
+  private balance: number;
+
+  constructor(initialBalance: number) {
+    this.balance = initialBalance;
+  }
+
+  private calculateInterest() {
+    return this.balance * 0.05;
+  }
+
+  public showBalance() {
+    console.log(`Balance: $${this.balance}`);
+  }
+}
+
+const account = new Account(1000);
+account.showBalance(); // ✅ Accessible
+// account.balance; // ❌ Error: 'balance' is private
+// account.calculateInterest(); // ❌ Error: 'calculateInterest' is private
+```
+
+### ✅ Use Case:
+
+Use `private` for **internal class logic** or **sensitive data** that should not be modified or accessed from outside.
+
+---
+
+## 🧩 3. Protected
+
+### 🔹 Definition:
+
+Members declared as `protected` are **accessible within the same class and its subclasses**, but **not outside** those classes.
+
+### 🔹 Example:
+
+```ts
+class Animal {
+  protected species: string;
+
+  constructor(species: string) {
+    this.species = species;
+  }
+}
+
+class Dog extends Animal {
+  public showSpecies() {
+    console.log(`This is a ${this.species}`); // ✅ Accessible inside subclass
+  }
+}
+
+const dog = new Dog('Golden Retriever');
+dog.showSpecies(); // ✅ Accessible
+// dog.species; // ❌ Error: 'species' is protected
+```
+
+### ✅ Use Case:
+
+Use `protected` when you want **child classes to have access**, but still want to **restrict direct access** from outside.
+
+---
+
+## 🧠 Comparison Table
+
+| Modifier      | Accessible in Same Class | Accessible in Subclass | Accessible Outside Class |
+| ------------- | ------------------------ | ---------------------- | ------------------------ |
+| **public**    | ✅ Yes                    | ✅ Yes                  | ✅ Yes                    |
+| **protected** | ✅ Yes                    | ✅ Yes                  | ❌ No                     |
+| **private**   | ✅ Yes                    | ❌ No                   | ❌ No                     |
+
+---
+
+## 🧩 Example: All Modifiers Together
+
+```ts
+class Employee {
+  public name: string;
+  protected department: string;
+  private salary: number;
+
+  constructor(name: string, department: string, salary: number) {
+    this.name = name;
+    this.department = department;
+    this.salary = salary;
+  }
+
+  public getInfo() {
+    console.log(`${this.name} works in ${this.department}`);
+  }
+
+  private showSalary() {
+    console.log(`Salary: ${this.salary}`);
+  }
+}
+
+class Manager extends Employee {
+  constructor(name: string, department: string, salary: number) {
+    super(name, department, salary);
+  }
+
+  public display() {
+    // console.log(this.salary); // ❌ Cannot access private member
+    console.log(`Department: ${this.department}`); // ✅ Protected accessible here
+  }
+}
+
+const emp = new Manager('Aya', 'Development', 5000);
+emp.getInfo(); // ✅ Public method
+emp.display(); // ✅ Access protected via subclass
+// emp.department; // ❌ Error: protected
+// emp.salary; // ❌ Error: private
+```
+
+---
+
+## ✅ Summary
+
+| Keyword       | Visibility                            | Typical Use                                    |
+| ------------- | ------------------------------------- | ---------------------------------------------- |
+| **public**    | Accessible everywhere                 | Commonly used for open APIs or public methods  |
+| **protected** | Accessible in class + subclasses      | Use for inherited properties or internal logic |
+| **private**   | Accessible only inside the same class | Use for sensitive or internal data             |
+
+---
+
+**In short:**
+
+* `public` → open access
+* `protected` → access for subclasses only
+* `private` → class-only access
+
+These modifiers make your code **more secure, maintainable, and well-structured**.
+
+
+# ⚙️ Getters and Setters in TypeScript
+
+## 📘 What Are Getters and Setters?
+
+**Getters (`get`)** and **Setters (`set`)** are **special methods** in a class that control how we **read** and **update** the value of private or protected properties.
+
+They allow **encapsulation** — meaning we can hide internal data and provide **controlled access** to it instead of allowing direct modification.
+
+---
+
+## 🧩 Why Use `get` and `set` Instead of `public`
+
+If a property is marked `public`, anyone can directly read or modify it from outside the class.
+
+That can lead to **uncontrolled changes** and break program logic.
+
+Using **private properties** with `get` and `set` gives you:
+
+* 🔒 **Encapsulation** – hide internal details.
+* ✅ **Validation** – check or transform data before saving.
+* 🔄 **Consistency** – run additional logic when data changes.
+* 📦 **Read-only** or **write-controlled** access.
+
+---
+
+## 🧠 Basic Example: Without Getters/Setters
+
+```ts
+class User {
+  public name: string;
+}
+
+const user = new User();
+user.name = "Aya"; // ✅ Works
+console.log(user.name); // ✅ Aya
+
+// But anyone can set anything, even invalid data
+user.name = ""; // ❌ no validation — risky
+```
+
+Here, we can’t control what value is assigned to `name`.
+
+---
+
+## 🧩 Example with `get` and `set`
+
+```ts
+class User {
+  private _name: string = "";
+
+  // Getter - allows controlled read access
+  get name(): string {
+    return this._name;
+  }
+
+  // Setter - allows controlled write access
+  set name(value: string) {
+    if (value.trim().length === 0) {
+      throw new Error("Name cannot be empty");
+    }
+    this._name = value;
+  }
+}
+
+const user = new User();
+user.name = "Aya Elmahdy"; // ✅ Uses setter
+console.log(user.name); // ✅ Uses getter, prints "Aya Elmahdy"
+
+// user._name = ""; // ❌ Error: Property '_name' is private
+```
+
+### 🔍 What Happened:
+
+* The property `_name` is **private** — can’t be accessed directly.
+* We read `name` using the **getter** (`get name()`)
+* We write to `name` using the **setter** (`set name(value)`)
+* Validation ensures we can’t assign an invalid value.
+
+---
+
+## 🧩 Example: Using `get` for Derived Values
+
+You can use a **getter** to calculate or transform data before returning it:
+
+```ts
+class Rectangle {
+  constructor(private _width: number, private _height: number) {}
+
+  get area(): number {
+    return this._width * this._height;
+  }
+}
+
+const rect = new Rectangle(10, 5);
+console.log(rect.area); // ✅ 50 (calculated via getter)
+```
+
+> The `area` property looks like a normal property but is actually computed dynamically using the getter.
+
+---
+
+## 🧩 Example: Using `set` for Updates
+
+```ts
+class BankAccount {
+  private _balance: number = 0;
+
+  get balance(): number {
+    return this._balance;
+  }
+
+  set balance(amount: number) {
+    if (amount < 0) throw new Error("Balance cannot be negative");
+    this._balance = amount;
+  }
+}
+
+const account = new BankAccount();
+account.balance = 1000; // ✅ set
+console.log(account.balance); // ✅ get → 1000
+
+// account.balance = -200; // ❌ Throws error
+```
+
+The setter ensures that balance can’t be set to a negative number.
+
+---
+
+## 🧩 Getters and Setters in Action (Update Example)
+
+```ts
+class Product {
+  private _price: number = 0;
+
+  get price(): number {
+    return this._price;
+  }
+
+  set price(value: number) {
+    if (value < 0) throw new Error("Price cannot be negative");
+    console.log(`Price updated from ${this._price} → ${value}`);
+    this._price = value;
+  }
+}
+
+const item = new Product();
+item.price = 20; // ✅ Logs: Price updated from 0 → 20
+console.log(item.price); // ✅ 20
+```
+
+> The `set` method allowed validation **and** triggered a log message when the property changed.
+
+---
+
+## 🧠 Why Use `private` with Getters and Setters
+
+* Keeps internal data **safe from direct access**.
+* Forces external code to use `get`/`set`, where you can control behavior.
+* Makes your class more **robust** and **maintainable**.
+
+---
+
+## 🧩 Summary
+
+| Feature       | Description                                                |
+| ------------- | ---------------------------------------------------------- |
+| **`get`**     | Used to read a private property’s value safely             |
+| **`set`**     | Used to update a private property with validation or logic |
+| **`private`** | Restricts direct access to class members                   |
+| **Benefit**   | Encapsulation, validation, computed values, logging        |
+
+---
+
+### ✅ Example Summary
+
+```ts
+class UserProfile {
+  private _email: string = "";
+
+  get email(): string {
+    return this._email.toLowerCase(); // Transform before returning
+  }
+
+  set email(value: string) {
+    if (!value.includes('@')) throw new Error('Invalid email');
+    this._email = value;
+  }
+}
+
+const profile = new UserProfile();
+profile.email = 'AYA@MAIL.COM'; // set → validation + update
+console.log(profile.email); // get → aya@mail.com
+```
+
+---
+
