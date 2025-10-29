@@ -838,3 +838,464 @@ console.log(profile.email); // get → aya@mail.com
 
 ---
 
+# 📘 Static Members in TypeScript
+
+## 🔹 What Are Static Members?
+
+In TypeScript (and JavaScript), **static members** are **properties or methods** that belong to the **class itself**, not to instances of the class.
+
+That means:
+
+* You **don’t need to create an object** to access a static member.
+* You access it **directly through the class name**.
+
+```ts
+class MathUtils {
+  static PI = 3.14159;
+
+  static calculateArea(radius: number): number {
+    return this.PI * radius * radius;
+  }
+}
+
+console.log(MathUtils.PI); // ✅ Access via class
+console.log(MathUtils.calculateArea(5)); // ✅ Access via class
+```
+
+> ❌ You **cannot** access static members through an instance:
+>
+> ```ts
+> const m = new MathUtils();
+> console.log(m.PI); // ❌ Error
+> ```
+
+---
+
+## 🔹 Why Use Static Members?
+
+Static members are useful when:
+
+* The data or function is **shared across all instances**.
+* You don’t want each object to duplicate the same logic or data.
+* You need **utility functions** or **constants**.
+
+Examples:
+
+* Utility classes (`Math`, `Date`, etc.)
+* Shared counters or configuration values.
+
+---
+
+## 🔹 Static vs Instance Members
+
+| Feature     | Static Member              | Instance Member         |
+| ----------- | -------------------------- | ----------------------- |
+| Belongs To  | Class itself               | Instance (object)       |
+| Accessed By | Class name                 | Object reference        |
+| Shared?     | Yes, shared among all      | No, unique per instance |
+| Use Case    | Utility methods, constants | Object-specific data    |
+
+---
+
+## 🔹 Example with Both Static and Instance Members
+
+```ts
+class User {
+  private static userCount = 0; // shared counter
+  public name: string;
+
+  constructor(name: string) {
+    this.name = name;
+    User.userCount++; // Access static via class name
+  }
+
+  static getUserCount(): number {
+    return User.userCount;
+  }
+}
+
+const u1 = new User("Aya");
+const u2 = new User("Omar");
+
+console.log(User.getUserCount()); // 2 ✅ shared across all users
+```
+
+---
+
+## 🔹 Why Use `static` Instead of `public` Instance Members?
+
+If you used a `public` property instead:
+
+* Each instance would have its own **copy**.
+* You’d waste memory and possibly cause inconsistency.
+
+Using `static` ensures one **shared source of truth**.
+
+---
+
+## 🔹 Real-World Example
+
+```ts
+class Config {
+  static API_URL = "https://api.example.com";
+
+  static log(message: string): void {
+    console.log(`[LOG] ${message}`);
+  }
+}
+
+Config.log(`Connecting to ${Config.API_URL}`);
+```
+
+---
+
+## 🔹 Summary
+
+* `static` → Belongs to the class, not objects.
+* Access using `ClassName.member`.
+* Useful for shared data or utility methods.
+* Reduces duplication and improves consistency.
+
+**Use static members when behavior or data is not tied to individual instances but to the class as a whole.**
+
+
+---
+# 📘 Abstract Classes and Members in TypeScript
+
+## 🔹 What Is an Abstract Class?
+
+An **abstract class** in TypeScript is a **blueprint** for other classes.
+
+* It **cannot be instantiated** directly.
+* It may contain **abstract methods** (methods with no implementation).
+* It may also contain **normal (concrete)** methods and properties.
+
+You use an abstract class when you want to **define a common structure or behavior** that derived classes must follow.
+
+---
+
+## 🧩 Example: Basic Abstract Class
+
+```ts
+abstract class Animal {
+  // Abstract method (must be implemented by subclasses)
+  abstract makeSound(): void;
+
+  // Concrete method (optional shared implementation)
+  move(): void {
+    console.log("The animal moves");
+  }
+}
+
+class Dog extends Animal {
+  makeSound(): void {
+    console.log("Woof! Woof!");
+  }
+}
+
+const dog = new Dog();
+dog.makeSound(); // Woof! Woof!
+dog.move();      // The animal moves
+
+// const animal = new Animal(); // ❌ Error: Cannot create an instance of an abstract class
+```
+
+---
+
+## 🔹 Abstract Members
+
+An **abstract member** (method or property):
+
+* Is declared using the `abstract` keyword.
+* Has **no implementation** in the base class.
+* **Must** be implemented in the derived class.
+
+```ts
+abstract class Shape {
+  abstract area(): number;
+  abstract perimeter(): number;
+}
+
+class Rectangle extends Shape {
+  constructor(private width: number, private height: number) {
+    super();
+  }
+
+  area(): number {
+    return this.width * this.height;
+  }
+
+  perimeter(): number {
+    return 2 * (this.width + this.height);
+  }
+}
+
+const rect = new Rectangle(10, 5);
+console.log(rect.area());      // 50
+console.log(rect.perimeter()); // 30
+```
+
+---
+
+## 🔹 Why Use Abstract Classes?
+
+Use abstract classes when you want to:
+
+1. **Force subclasses** to implement specific methods.
+2. Provide a **base structure** or **shared behavior**.
+3. Encourage **consistency** among related classes.
+
+For example:
+
+```ts
+abstract class Database {
+  abstract connect(): void;
+  abstract disconnect(): void;
+
+  logStatus(): void {
+    console.log("Database status checked.");
+  }
+}
+
+class MySQLDatabase extends Database {
+  connect(): void {
+    console.log("Connected to MySQL database.");
+  }
+  disconnect(): void {
+    console.log("Disconnected from MySQL database.");
+  }
+}
+
+const db = new MySQLDatabase();
+db.connect();
+db.logStatus();
+db.disconnect();
+```
+
+---
+
+## 🔹 Abstract Properties
+
+You can also define **abstract properties** that must be provided by subclasses.
+
+```ts
+abstract class Person {
+  abstract name: string;
+  abstract age: number;
+
+  greet(): void {
+    console.log(`Hello, my name is ${this.name}`);
+  }
+}
+
+class Employee extends Person {
+  name = "Aya";
+  age = 25;
+}
+
+const emp = new Employee();
+emp.greet(); // Hello, my name is Aya
+```
+
+---
+
+## 🔹 Abstract Class vs Interface
+
+| Feature                     | Abstract Class          | Interface                   |
+| --------------------------- | ----------------------- | --------------------------- |
+| Can have implementations?   | ✅ Yes                   | ❌ No                        |
+| Can have fields/properties? | ✅ Yes                   | ✅ Yes                       |
+| Can be instantiated?        | ❌ No                    | ❌ No                        |
+| Inheritance                 | Only one abstract class | Multiple interfaces         |
+| Use case                    | Common base with logic  | Shape of object / structure |
+
+Example:
+
+```ts
+interface Flyable {
+  fly(): void;
+}
+
+abstract class Bird {
+  abstract sound(): void;
+  move(): void {
+    console.log("Bird is flying");
+  }
+}
+
+class Sparrow extends Bird implements Flyable {
+  sound(): void {
+    console.log("Chirp chirp");
+  }
+  fly(): void {
+    console.log("Sparrow flies high");
+  }
+}
+```
+
+---
+
+## 🔹 Summary
+
+* `abstract` classes define **templates** for subclasses.
+* Abstract members **must** be implemented in derived classes.
+* They can mix **implemented (concrete)** and **unimplemented (abstract)** logic.
+* Use abstract classes when you want to **enforce structure and share behavior** at the same time.
+
+# 📘 Polymorphism and `override` Modifier in TypeScript (Easy Explanation)
+
+## 🔹 What is Polymorphism?
+
+**Polymorphism** means *many forms*. It allows a parent class to have many child classes that can use the same method name but do **different actions**.
+---
+
+## 🐾 Example
+
+```ts
+class Animal {
+  makeSound(): void {
+    console.log("Some sound");
+  }
+}
+
+class Dog extends Animal {
+  override makeSound(): void {
+    console.log("Woof!");
+  }
+}
+
+class Cat extends Animal {
+  override makeSound(): void {
+    console.log("Meow!");
+  }
+}
+
+const animals: Animal[] = [new Dog(), new Cat(), new Animal()];
+
+for (const a of animals) {
+  a.makeSound();
+}
+// Output:
+// Woof!
+// Meow!
+// Some sound
+```
+
+🧠 **Explanation:** All animals share the same method name (`makeSound`), but each gives a different result depending on its class.
+
+---
+
+## 🔹 Why Use Polymorphism?
+
+* You can use **one function** to work with **different objects**.
+* It makes your code **cleaner and easier to extend**.
+* You don’t have to rewrite the same logic for each type.
+---
+
+## 🔹 What is the `override` Modifier?
+
+When a child class changes a method that already exists in the parent class, it’s called **overriding**.
+
+The **`override` keyword** helps TypeScript check that:
+
+* The method actually exists in the parent.
+* You didn’t make a typo by mistake.
+
+Example:
+
+```ts
+class Vehicle {
+  start(): void {
+    console.log("Starting vehicle...");
+  }
+}
+
+class Car extends Vehicle {
+  override start(): void { // overriding the parent method
+    console.log("Car engine started!");
+  }
+}
+
+const myCar = new Car();
+myCar.start(); // Car engine started!
+```
+
+If you write it wrong:
+
+```ts
+class Bike extends Vehicle {
+  override strat(): void { // ❌ Error: no method 'strat' in parent
+    console.log("Bike started!");
+  }
+}
+```
+
+The `override` keyword catches the mistake!
+
+---
+
+## 🔹 Using `super`
+
+Sometimes you want to use the parent method **and** add extra code. You can call the parent version using `super`.
+
+```ts
+class Parent {
+  greet(): void {
+    console.log("Hello from Parent");
+  }
+}
+
+class Child extends Parent {
+  override greet(): void {
+    super.greet(); // Call parent method
+    console.log("Hello from Child");
+  }
+}
+
+const c = new Child();
+c.greet();
+// Output:
+// Hello from Parent
+// Hello from Child
+```
+
+---
+
+## 🔹 Real-World Example
+
+```ts
+abstract class Payment {
+  abstract pay(amount: number): void;
+}
+
+class CreditCard extends Payment {
+  override pay(amount: number): void {
+    console.log(`Paid ${amount} using Credit Card`);
+  }
+}
+
+class PayPal extends Payment {
+  override pay(amount: number): void {
+    console.log(`Paid ${amount} using PayPal`);
+  }
+}
+
+const payments: Payment[] = [new CreditCard(), new PayPal()];
+for (const p of payments) {
+  p.pay(100);
+}
+// Output:
+// Paid 100 using Credit Card
+// Paid 100 using PayPal
+```
+
+---
+
+## 🔹 Summary
+
+| Concept          | Meaning                                            |
+| ---------------- | -------------------------------------------------- |
+| **Polymorphism** | Same method name, different behavior in each class |
+| **Override**     | Used when redefining a parent method in the child  |
+| **Super**        | Used to call the parent’s version of a method      |
+
