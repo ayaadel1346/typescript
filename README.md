@@ -1299,3 +1299,152 @@ for (const p of payments) {
 | **Override**     | Used when redefining a parent method in the child  |
 | **Super**        | Used to call the parent’s version of a method      |
 
+
+# TypeScript Generics
+
+## 🧩 What Are Generics?
+
+Generics in TypeScript allow you to create reusable and flexible code by writing functions, classes that can work with **any data type**. Instead of fixing a type, generics use a **type variable** (like `<T>`) that gets replaced when the code is used.
+
+### 🧠 Why Use Generics?
+
+* To make code **reusable** for different data types.
+* To maintain **type safety**.
+* To avoid using `any`, which disables type checking.
+
+---
+
+## 🧮 1. Basic Generic Example
+
+```ts
+function identity<T>(value: T): T {
+  return value;
+}
+
+// Usage
+let num = identity<number>(10); // T = number
+let str = identity<string>("Hello"); // T = string
+```
+
+Here `T` is a type placeholder. When you call the function, TypeScript infers the type automatically.
+
+---
+
+## ⚙️ 2. Generic with Functions
+
+Generics help create functions that can handle different types safely.
+
+```ts
+function getFirstElement<T>(arr: T[]): T {
+  return arr[0];
+}
+
+const numbers = getFirstElement<number>([1, 2, 3]); // number
+const names = getFirstElement<string>(["Aya", "Sara"]); // string
+```
+
+This function works with any array type.
+
+---
+
+## 🧱 3. Generic with Classes
+
+You can make a class generic by adding `<T>` after the class name.
+
+```ts
+class Box<T> {
+  private content: T;
+
+  constructor(value: T) {
+    this.content = value;
+  }
+
+  getValue(): T {
+    return this.content;
+  }
+}
+
+const numberBox = new Box<number>(100);
+console.log(numberBox.getValue()); // 100
+
+const stringBox = new Box<string>("TypeScript");
+console.log(stringBox.getValue()); // TypeScript
+```
+
+Each `Box` instance can store a specific type.
+
+---
+
+## 🔁 4. Multiple Generics
+
+You can use more than one type variable.
+
+```ts
+function pair<T, U>(first: T, second: U): [T, U] {
+  return [first, second];
+}
+
+const mixed = pair<string, number>("Age", 25);
+console.log(mixed); // ["Age", 25]
+```
+
+Here we used `<T, U>` to allow two different types.
+
+---
+
+## ⚙️ 5. Default Generic Type
+
+You can set a **default type** for a generic parameter.
+
+```ts
+function showData<T = string>(data: T): T {
+  return data;
+}
+
+console.log(showData("Aya")); // Aya
+console.log(showData<number>(25)); // 25
+```
+
+If no type is provided, `T` defaults to `string`.
+
+---
+
+
+```ts
+interface UserInfo {
+  name: string;
+  age: number;
+}
+
+class DataStore<T> {
+  private data: T;
+
+  constructor(value: T) {
+    this.data = value;
+  }
+
+  getData(): T {
+    return this.data;
+  }
+}
+
+
+const userStore = new DataStore<UserInfo>({ name: "Aya", age: 22 });
+console.log(userStore.getData()); // { name: "Aya", age: 22 }
+```
+
+
+---
+
+## 🧠 Summary
+
+| Concept           | Description                                  | Example                          |
+| ----------------- | -------------------------------------------- | -------------------------------- |
+| Generic Function  | Works with any type                          | `function identity<T>(value: T)` |
+| Generic Class     | Reusable class with flexible type            | `class Box<T>`                   |
+| Multiple Generics | Use more than one type variable              | `<T, U>`                         |
+| Default Type      | Provides fallback type                       | `<T = string>`                   |
+---
+
+
+
